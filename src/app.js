@@ -1,6 +1,7 @@
 const express = require("express");
 
 const app = express(); // server created
+const { adminAuth, userAuth } = require("./middlewares/auth");
 
 // // ---  /ab?c means /abc & /ac allowed
 // app.get("/ab?c", (req, res) => {
@@ -72,17 +73,26 @@ const app = express(); // server created
 // app.use("/test", (req, res) => {
 //   res.send("test from server");
 // });
-app.use("/user", [
-  (req, res, next) => {
-    console.log("route user1");
-    next();
-    //res.send("response from router hander 1");
-  },
-  (req, res, next) => {
-    console.log("route user2");
-    res.send("response from router hander 2");
-  },
-]);
+app.use("/admin", adminAuth);
+
+// app.get("/user", (req, res, next) => {
+//   console.log("route user1");
+//   next();
+//   //res.send("response from router hander 1");
+// });
+
+app.get("/user", userAuth, (req, res, next) => {
+  console.log("route user2");
+  res.send("response from router hander 2");
+});
+
+app.get("/admin/getAllData", (req, res, next) => {
+  res.send("All data Sent");
+});
+
+app.get("/admin/deleteUser", (req, res, next) => {
+  res.send("delet a user");
+});
 
 app.listen(3000, () => {
   console.log("Server started");
