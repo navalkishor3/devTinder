@@ -73,7 +73,7 @@ const { adminAuth, userAuth } = require("./middlewares/auth");
 // app.use("/test", (req, res) => {
 //   res.send("test from server");
 // });
-app.use("/admin", adminAuth);
+// app.use("/admin", adminAuth);
 
 // app.get("/user", (req, res, next) => {
 //   console.log("route user1");
@@ -81,17 +81,31 @@ app.use("/admin", adminAuth);
 //   //res.send("response from router hander 1");
 // });
 
-app.get("/user", userAuth, (req, res, next) => {
-  console.log("route user2");
-  res.send("response from router hander 2");
+// app.get("/user", userAuth, (req, res, next) => {
+//   console.log("route user2");
+//   res.send("response from router hander 2");
+// });
+
+// app.get("/admin/getAllData", (req, res, next) => {
+//   res.send("All data Sent");
+// });
+
+// app.get("/admin/deleteUser", (req, res, next) => {
+//   res.send("delet a user");
+// });
+app.get("/getUserData", (req, res, next) => {
+  try {
+    throw new Error("Random error for test");
+    res.send("response from router hander 2");
+  } catch (err) {
+    res.status(500).send("somethin went wrong from catch");
+  }
 });
 
-app.get("/admin/getAllData", (req, res, next) => {
-  res.send("All data Sent");
-});
-
-app.get("/admin/deleteUser", (req, res, next) => {
-  res.send("delet a user");
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    res.status(500).send("somethin went wrong");
+  }
 });
 
 app.listen(3000, () => {
