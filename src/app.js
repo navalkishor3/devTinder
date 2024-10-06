@@ -81,10 +81,31 @@ app.delete("/user", async (req, res) => {
 });
 
 // update
-app.patch("/user", async (req, res) => {
-  const emailId = { emailId: req.body.emailId };
+app.patch("/user/:emailId", async (req, res) => {
+  // const emailId = { emailId: req.body.emailId };
+  const emailId = { emailId: req.params?.emailId };
   const update = req.body;
+
   try {
+    const ALLOWED_UPDATE_FIELDS = [
+      "firstName",
+      "lastname",
+      "password",
+      "age",
+      "gender",
+      "skills",
+    ];
+    const isUpdateAllowed = Object.keys(update).every((k) =>
+      ALLOWED_UPDATE_FIELDS.includes(k)
+    );
+
+    if (!isUpdateAllowed) {
+      throw new Error("Updates not allowed for this field");
+    }
+    if (update?.skills.length > 10) {
+      throw new Error("skills can not be more than 10");
+    }
+
     const user = await User.findOneAndUpdate(emailId, update, {
       new: true,
       runValidators: true,
