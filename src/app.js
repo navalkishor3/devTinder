@@ -94,6 +94,7 @@ app.patch("/user/:emailId", async (req, res) => {
       "age",
       "gender",
       "skills",
+      "photoUrl",
     ];
     const isUpdateAllowed = Object.keys(update).every((k) =>
       ALLOWED_UPDATE_FIELDS.includes(k)
