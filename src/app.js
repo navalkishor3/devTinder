@@ -83,10 +83,11 @@ app.delete("/user", async (req, res) => {
 // update
 app.patch("/user", async (req, res) => {
   const emailId = { emailId: req.body.emailId };
-  const update = { age: 51 };
+  const update = req.body;
   try {
     const user = await User.findOneAndUpdate(emailId, update, {
       new: true,
+      runValidators: true,
     });
 
     if (!user) {
@@ -95,7 +96,7 @@ app.patch("/user", async (req, res) => {
       res.send("user updated " + user);
     }
   } catch (err) {
-    res.status(400).send("Something went wrong" + err.message);
+    res.status(400).send("Something went wrong " + err.message);
   }
 });
 
