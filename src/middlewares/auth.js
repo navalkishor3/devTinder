@@ -1,26 +1,32 @@
-const adminAuth = (req, res, next) => {
-  console.log("Admin auth getting checekd");
-  const tolen = "xyz";
-  const isAdminAuthorized = tolen === "xyz";
-  if (!isAdminAuthorized) {
-    res.status(401).send("Unauthorized request");
-  } else {
-    next();
-  }
-};
+const jwt = require("jsonwebtoken");
+const User = require("../modles/user");
 
-const userAuth = (req, res, next) => {
-  console.log("User auth getting checekd");
-  const token = "xyza";
-  const isAdminAuthorized = token === "xyz";
-  if (!isAdminAuthorized) {
-    res.status(401).send("Unauthorized user");
-  } else {
+const userAuth = async (req, res, next) => {
+  try {
+    // Read the token from cookies
+    const { token } = req.cookies;
+
+    if (!token) {
+      throw new Error("token is not valid");
+    }
+
+    // validate token
+    // const decodedObj = await jwt.verify(token, "dev@tinderSecretkey");
+    const decodedObj = await jwt.verify(token, "dev@tinderSecretkey");
+    const { _id } = decodedObj;
+
+    //Find the user
+    const user = await User.findById(_id);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    req.user = user;
     next();
+  } catch (err) {
+    res.status(400).send("Error: " + err.message);
   }
 };
 
 module.exports = {
-  adminAuth,
   userAuth,
 };

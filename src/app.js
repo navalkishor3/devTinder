@@ -5,7 +5,12 @@ const User = require("./modles/user");
 const { validateSignupData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth");
+
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
@@ -45,33 +50,42 @@ app.post("/login", async (req, res) => {
     }
 
     //Compare password
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    console.log(isValidPassword);
+    // const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await user.validatePassword(password);
+    //console.log(isValidPassword);
 
     if (!isValidPassword) {
       throw new Error("Invalid Credentials");
     } else {
+      // create jwt tokken
+      const token = await user.getJWT();
+
+      //send token into cokkies
+
+      // console.log(token);
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 8 * 3600000), // cookie will be removed after 8 hours
+      });
       res.send("user login successfully");
     }
   } catch (err) {
     res.status(400).send("Error while login :" + err.message);
   }
 });
-// Find single user
-// app.get("/user", async (req, res) => {
-//   const userEmail = req.body.emailId;
-//   try {
-//     const user = await User.find({ emailId: userEmail });
 
-//     if (!user.length) {
-//       res.status(404).send("User not found " + userEmail);
-//     } else {
-//       res.send(user);
-//     }
-//   } catch (err) {
-//     res.status(400).send("Something went wrong" + err.message);
-//   }
-// });
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    res.send(user);
+  } catch (err) {
+    res.status(400).send("Error while view profile :" + err.message);
+  }
+});
+
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
+  console.log("Sending connection requeest");
+  res.send("Connection request send");
+});
 
 // Find single user findone
 app.get("/user", async (req, res) => {
@@ -88,24 +102,6 @@ app.get("/user", async (req, res) => {
     res.status(400).send("Something went wrong" + err.message);
   }
 });
-
-// findById
-// app.get("/user", async (req, res) => {
-//   const userId = req.body._id;
-//   // 67016e26a915c889ccbf8fff
-//   console.log(userId);
-//   try {
-//     const user = await User.findById({ _id: userId });
-
-//     if (!user) {
-//       res.status(404).send("User not found " + user);
-//     } else {
-//       res.send(user);
-//     }
-//   } catch (err) {
-//     res.status(400).send("Something went wrong" + err.message);
-//   }
-// });
 
 // delete user
 app.delete("/user", async (req, res) => {
