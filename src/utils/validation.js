@@ -14,6 +14,31 @@ const validateSignupData = (req) => {
   }
 };
 
+const validateEditProfileData = (req) => {
+  const allowedEditFields = [
+    "firstName",
+    "lastName",
+    "gender",
+    "age",
+    "about",
+    "skills",
+    "emailId",
+  ];
+
+  const isAllowed = Object.keys(req.body).every((field) =>
+    allowedEditFields.includes(field)
+  );
+  // const { emailId, password } = req.body;
+  // if (!validator.isEmail(emailId)) {
+  //   throw new Error("Not a valid email");
+  // } else if (!validator.isStrongPassword(password)) {
+  //   throw new Error("Not a strong password");
+  // }
+
+  return isAllowed;
+};
+
 module.exports = {
   validateSignupData,
+  validateEditProfileData,
 };

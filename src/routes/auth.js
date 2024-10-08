@@ -34,12 +34,12 @@ authRouter.post("/login", async (req, res) => {
 
     // validate data
     if (!validator.isEmail(emailId)) {
-      throw new Error("Invalid Credentials");
+      throw new Error("Not a valid email id");
     }
 
     const user = await User.findOne({ emailId: emailId });
     if (!user) {
-      throw new Error("User Does not exist");
+      throw new Error("Invalid Credentials");
     }
 
     //Compare password
@@ -56,13 +56,25 @@ authRouter.post("/login", async (req, res) => {
       //send token into cokkies
 
       // console.log(token);
-      res.cookie("token", token, {
-        expires: new Date(Date.now() + 8 * 3600000), // cookie will be removed after 8 hours
-      });
-      res.send("user login successfully");
+      res
+        .cookie("token", token, {
+          expires: new Date(Date.now() + 8 * 3600000), // cookie will be removed after 8 hours
+        })
+        .send("user login successfully");
     }
   } catch (err) {
     res.status(400).send("Error while login :" + err.message);
+  }
+});
+
+authRouter.post("/logout", (req, res) => {
+  try {
+    res.cookie("token", null, {
+      expires: new Date(Date.now()),
+    });
+    res.send("You are logout");
+  } catch (err) {
+    res.status(400).send("Error while logout: " + err.message);
   }
 });
 
